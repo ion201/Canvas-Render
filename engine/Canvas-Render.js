@@ -2,7 +2,7 @@ require.config({
     baseUrl: 'engine'
 });
 
-define(['core', 'utils'], function(core, utils){
+define(['core', 'utils', 'vector3d'], function(core, utils, vector3d){
 
     CR = {};
 
@@ -26,12 +26,10 @@ define(['core', 'utils'], function(core, utils){
     }
 
     var viewport = {};
-    viewport.x = 0;
-    viewport.y = 0;
-    viewport.z = 0;
-    viewport.yaw = 0;
-    viewport.pitch = 0;
-    viewport.fov = 90;
+    viewport.pos = vector3d(0, 0, 0);
+    viewport.rot_horz = 0;  // Rotation around relative x-axis
+    viewport.rot_vert = 0;  // Rotation around relative z-axis
+    viewport.fov = Math.PI / 2;  // 90 deg
 
     CR.setFov = function(fov){
         // 60 < fov < 120;
