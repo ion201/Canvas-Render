@@ -26,9 +26,9 @@ define(['core', 'utils', 'vector3d'], function(core, utils, vector3d){
     }
 
     var viewport = {};
-    viewport.pos = vector3d(0, 0, 0);
+    viewport.pos = vector3d.create(0, 0, .5);
     viewport.rot_horz = 0;  // Rotation around relative x-axis
-    viewport.rot_vert = 0;  // Rotation around relative z-axis
+    viewport.rot_vert = Math.PI / 18;  // Rotation around relative z-axis
     viewport.fov = Math.PI / 2;  // 90 deg
 
     CR.setFov = function(fov){

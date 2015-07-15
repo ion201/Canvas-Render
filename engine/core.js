@@ -13,18 +13,33 @@ define(['vector3d', 'utils'], function(vector3d, utils){
             //context.lineTo(51, 50);
             var obj = scene[i];
             context.strokeStyle = obj.color;
+            var firstVertice = true;
             for (var j = 0; j < obj.vertices.length; j++){
-                var relPos = vector3d(obj.vertices[j]);
+
+                // Magic
+                var relPos = vector3d.create(obj.vertices[j]);
                 relPos.subtract(vp.pos);
+                relPos.rotate3d(-vp.rot_horz, -vp.rot_vert, 0);
 
-                // Project the relative position of the point onto the viewport's direct line of sight
-                var los = vector3d(Math.sin(vp.rot_horz)*Math.cos(vp.rot_vert), Math.cos(vp.rot_horz)*Math.cos(vp.rot_vert), Math.sin(vp.rot_vert));
-                var proj = relPos.projectOn(los)
+                var los = vector3d.create(0, 1, 0);
 
-                // Rotate projection vector to align along the y-axis
-                // Rotated line-of-sight unit vector is (0, 1, 0)
-                proj.rotate3d(-vp.rot_horz, -vp.rot_vert, 0);
+                var fracSpanX = relPos.x;
+                var fracSpanZ = relPos.z;
+                var fullSpanX = -1 * Math.tan(vp.fov / 2) * relPos.y;
+                var fullSpanZ = -1 * Math.tan(vp.fov / 3) * relPos.y;
 
+                var canvasPosX = (fracSpanX / fullSpanX + 1) * (canvas.width / 2);
+                var canvasPosY = (fracSpanZ / fullSpanZ + 1) * (canvas.height / 2);
+
+                if (firstVertice){
+                    context.moveTo(canvasPosX, canvasPosY);
+                    firstVertice = false;
+                }
+                if (canvasPosX < 0 || canvasPosX > canvas.width || canvasPosY < 0 || canvasPosY > canvas.height){
+                    context.moveTo(canvasPosX, canvasPosY+1);
+                } else{
+                    context.lineTo(canvasPosX, canvasPosY+1);
+                }
             }
         }
 
