@@ -36,6 +36,30 @@ define(['core', 'utils', 'vector3d'], function(core, utils, vector3d){
         viewport.fov = utils.clamp(fov, 60, 120);
     }
 
+    CR.moveView2d = function(d, angle){
+        // Angle in radians
+        // 0 rad = pointing straight forward.
+        // x, y, z portions are dependent on the angle of view
+        viewport.pos.x += d * Math.sin(angle + viewport.rot_horz);
+        viewport.pos.y += d * Math.cos(angle + viewport.rot_horz);
+        //viewport.pos.z += d * Math.sin(viewport.rot_vert) * Math.cos(angle);
+    }
+
+    CR.moveViewRelAxis = function(d, axis){
+        if (axis == 'x')
+            CR.moveView2d(d, Math.PI / 2);
+        if (axis == 'y')
+            CR.moveView2d(d, 0);
+        if (axis == 'z'){
+            viewport.pos.z += d;
+        }
+    }
+
+    CR.rotateView = function(d_horz, d_vert){
+        viewport.rot_horz += d_horz;
+        viewport.rot_vert += d_vert;
+    }
+
     var inframe = false;
     CR.coreloop = function(){
         if (CR.inframe) return;
@@ -49,7 +73,7 @@ define(['core', 'utils', 'vector3d'], function(core, utils, vector3d){
         var inframe = false;
     }
 
-    CR.go = function(fps){
+    CR.start = function(fps){
         setInterval(CR.coreloop, 1000 / fps);
     }
     return CR
