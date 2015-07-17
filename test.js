@@ -2,13 +2,13 @@ define(['engine/Canvas-Render'], function(CR) {
     // TODO: make a file format for these objects
 
     KEYS = {};
-    KEYS.K_FORWARD = {'key': 'w', 'state': 0};
-    KEYS.K_BACKWARD = {'key': 's', 'state': 0};
-    KEYS.K_LEFT = {'key': 'a', 'state': 0};
-    KEYS.K_RIGHT = {'key': 'd', 'state': 0};
-    KEYS.K_UP = {'key': ' ', 'state': 0};
-    KEYS.K_DOWN = {'key': 'shift', 'state': 0};
-    KEYS.K_PAUSE = {'key': 'escape', 'state': 0, 'istoggle': true};
+    KEYS.K_FORWARD = {'key': 'w', 'keyCode': 87, 'state': 0};
+    KEYS.K_BACKWARD = {'key': 's', 'keyCode': 83, 'state': 0};
+    KEYS.K_LEFT = {'key': 'a', 'keyCode': 65, 'state': 0};
+    KEYS.K_RIGHT = {'key': 'd', 'keyCode': 68, 'state': 0};
+    KEYS.K_UP = {'key': ' ', 'keyCode': 32, 'state': 0};
+    KEYS.K_DOWN = {'key': 'shift', 'keyCode': 16, 'state': 0};
+    KEYS.K_PAUSE = {'key': 'escape', 'keyCode': 27, 'state': 0, 'istoggle': true};
 
     var VELOCITY = .1;
     var SENSITIVITY = 1/350;
@@ -17,7 +17,7 @@ define(['engine/Canvas-Render'], function(CR) {
 
     function onKeyRelease(event){
         for (var prop in KEYS){
-            if (event.key.toLowerCase() === KEYS[prop].key && KEYS.hasOwnProperty(prop)){
+            if (event.keyCode === KEYS[prop].keyCode && KEYS.hasOwnProperty(prop)){
                 if (! KEYS[prop].istoggle)
                     KEYS[prop].state = 0;
             }
@@ -26,7 +26,7 @@ define(['engine/Canvas-Render'], function(CR) {
 
     function onKeyPress(event){
         for (var prop in KEYS){
-            if (event.key.toLowerCase() === KEYS[prop].key && KEYS.hasOwnProperty(prop)){
+            if (event.keyCode === KEYS[prop].keyCode && KEYS.hasOwnProperty(prop)){
                 if (KEYS[prop].istoggle && KEYS[prop].state === 1){
                     KEYS[prop].state = 0;
                 } else{
@@ -92,7 +92,7 @@ define(['engine/Canvas-Render'], function(CR) {
 
     CR.setFov(Math.PI / 2);  //Radians
 
-    CR.start(FPS);
+    CR.start();
 
     document.addEventListener('keydown', onKeyPress);
     document.addEventListener('keyup', onKeyRelease);

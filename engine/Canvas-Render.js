@@ -76,8 +76,21 @@ define(['core', 'utils', 'vector3d'], function(core, utils, vector3d){
         var inframe = false;
     }
 
-    CR.start = function(fps){
-        setInterval(CR.coreloop, 1000 / fps);
+    window.requestAFrame = function(){
+        return  window.requestAnimationFrame       ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame    ||
+                window.oRequestAnimationFrame      ||
+                window.msRequestAnimationFrame     ||
+                function(callback){
+                    window.setTimeout(callback, 1000 / 30);
+                };
+    }();
+
+    CR.start = function(){
+        requestAFrame(CR.start);
+        CR.coreloop();
+        //setInterval(CR.coreloop, 1000 / fps);
     }
     return CR
 });
