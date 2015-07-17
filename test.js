@@ -1,33 +1,39 @@
 define(['engine/Canvas-Render'], function(CR) {
     // TODO: make a file format for these objects
 
-    var K_FORWARD = 'w';
-    var K_BACKWARD = 's';
-    var K_LEFT = 'a';
-    var K_RIGHT = 'd';
-    var K_UP = ' ';
-    var K_DOWN = 'Shift';
-    var K_ESCAPE = 'Escape';
+    KEYS = {};
+    KEYS.K_FORWARD = {'key': 'w', 'state': 0};
+    KEYS.K_BACKWARD = {'key': 's', 'state': 0};
+    KEYS.K_LEFT = {'key': 'a', 'state': 0};
+    KEYS.K_RIGHT = {'key': 'd', 'state': 0};
+    KEYS.K_UP = {'key': ' ', 'state': 0};
+    KEYS.K_DOWN = {'key': 'shift', 'state': 0};
+    KEYS.K_PAUSE = {'key': 'escape', 'state': 0, 'istoggle': true};
 
     var VELOCITY = .1;
-    var SENSITIVITY = 1/500;
+    var SENSITIVITY = 1/350;
 
     var mouseLock = false;
 
-    function onKeyPress(event){
-        if (event.key == K_FORWARD)
-            CR.moveView2d(VELOCITY, 0);
-        if (event.key == K_BACKWARD)
-            CR.moveView2d(-VELOCITY, 0);
-        if (event.key == K_LEFT)
-            CR.moveView2d(VELOCITY, Math.PI / 2);
-        if (event.key == K_RIGHT)
-            CR.moveView2d(-VELOCITY, Math.PI / 2);
-        if (event.key == K_UP)
-            CR.moveViewRelAxis(VELOCITY, 'z');
-        if (event.key == K_DOWN)
-            CR.moveViewRelAxis(-VELOCITY, 'z');
+    function onKeyRelease(event){
+        for (var prop in KEYS){
+            if (event.key.toLowerCase() === KEYS[prop].key && KEYS.hasOwnProperty(prop)){
+                if (! KEYS[prop].istoggle)
+                    KEYS[prop].state = 0;
+            }
+        }
+    }
 
+    function onKeyPress(event){
+        for (var prop in KEYS){
+            if (event.key.toLowerCase() === KEYS[prop].key && KEYS.hasOwnProperty(prop)){
+                if (KEYS[prop].istoggle && KEYS[prop].state === 1){
+                    KEYS[prop].state = 0;
+                } else{
+                    KEYS[prop].state = 1;
+                }
+            }
+        }
     }
 
     var prevX = -1;
@@ -42,6 +48,10 @@ define(['engine/Canvas-Render'], function(CR) {
     }
 
     function onMouseDown(event){
+        if (KEYS.K_PAUSE.state === 1){
+            return;
+        }
+
         prevX = -1;
         prevY = -1;
         document.addEventListener('mousemove', onMouseMove);
@@ -51,30 +61,43 @@ define(['engine/Canvas-Render'], function(CR) {
         document.removeEventListener('mousemove', onMouseMove);
     }
 
+    function inputLoop(){
+        if (KEYS.K_PAUSE.state === 1)
+            return;
+        if (KEYS.K_FORWARD.state === 1)
+            CR.moveView2d(VELOCITY, 0);
+        if (KEYS.K_BACKWARD.state === 1)
+            CR.moveView2d(-VELOCITY, 0);
+        if (KEYS.K_LEFT.state === 1)
+            CR.moveView2d(VELOCITY, Math.PI / 2);
+        if (KEYS.K_RIGHT.state === 1)
+            CR.moveView2d(-VELOCITY, Math.PI / 2);
+        if (KEYS.K_UP.state === 1)
+            CR.moveViewRelAxis(VELOCITY, 'z');
+        if (KEYS.K_DOWN.state === 1)
+            CR.moveViewRelAxis(-VELOCITY, 'z');
+    }
 
     CR.addObject('white',
                 [[-1, 2, -1],
                 [1, 2, -1],
                 [-1, 2.5, -1],
-                [-1, 2, -1],
                 [1, 2.5, -1],
-                [1, 2, -1],
-                [1, 2, 1],
                 [-1, 2, 1],
-                [-1, 2, -1],
-                [-1, 2.5, 1],
-                [-1, 2, 1],
-                [1, 2.5, 1],
-                [1, 2.5, -1],
-                [-1, 2.5, -1],
-                [-1, 2.5, 1],
-                [1, 2.5, 1],
                 [1, 2, 1],
-                [1, 2.5, -1],
-                [-1, 2.5, 1]]);
-    CR.start(30);
+                [-1, 2.5, 1],
+                [1, 2.5, 1]]);
+
+    var FPS = 30;
+
+    CR.setFov(Math.PI / 2);  //Radians
+
+    CR.start(FPS);
 
     document.addEventListener('keydown', onKeyPress);
+    document.addEventListener('keyup', onKeyRelease);
     document.addEventListener('mousedown', onMouseDown);
     document.addEventListener('mouseup', onMouseUp );
+
+    setInterval(inputLoop, 1000 / FPS);
 });

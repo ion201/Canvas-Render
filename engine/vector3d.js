@@ -11,6 +11,7 @@ define([], function(){
         if ((a.x && a.y && a.z) !== undefined){
             return [a.x, a.y, a.z];
         }
+
         // A list of 3 values?
         if (a.constructor === Array){
             return a;
@@ -50,6 +51,11 @@ define([], function(){
             vec.x -= v[0];
             vec.y -= v[1];
             vec.z -= v[2];
+        }
+
+        vec.subtractNoMod = function(a, b, c){
+            var v = v3d.convertParams(a, b, c);
+            return v3d.create(vec.x - v[0], vec.y - v[1], vec.z - v[2]);
         }
 
         vec.scalarMult = function(val){

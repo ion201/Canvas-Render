@@ -4,19 +4,19 @@ define(['vector3d', 'utils'], function(vector3d, utils){
 
     core.renderScene = function(canvas, scene, vp){
         context = canvas.getContext('2d');
-        context.beginPath();
         var w = canvas.width;
         var h = canvas.height;
 
         for (var i = 0; i < scene.length; i++){
-            //context.moveTo(50, 50);
-            //context.lineTo(51, 50);
             var obj = scene[i];
-            context.strokeStyle = obj.color;
-            var firstVertice = true;
+            var points = [];
+
+            obj.vertices.sort(function(a, b){
+                return vp.pos.subtractNoMod(b).mag() - vp.pos.subtractNoMod(a).mag();
+            });
+
             for (var j = 0; j < obj.vertices.length; j++){
 
-                // Magic
                 var relPos = vector3d.create(obj.vertices[j]);
                 relPos.subtract(vp.pos);
                 relPos.rotate3d(-vp.rot_horz, -vp.rot_vert, 0);
@@ -31,20 +31,25 @@ define(['vector3d', 'utils'], function(vector3d, utils){
                 var canvasPosX = (fracSpanX / fullSpanX + 1) * (canvas.width / 2);
                 var canvasPosY = (fracSpanZ / fullSpanZ + 1) * (canvas.height / 2);
 
-                if (firstVertice){
-                    context.moveTo(canvasPosX, canvasPosY);
-                    firstVertice = false;
-                }
-                if (canvasPosX < 0 || canvasPosX > canvas.width || canvasPosY < 0 || canvasPosY > canvas.height){
-                    context.moveTo(canvasPosX, canvasPosY+1);
-                } else{
-                    context.lineTo(canvasPosX, canvasPosY+1);
+                points.push({'x': canvasPosX, 'y': canvasPosY});
+            }
+
+            context.strokeStyle = 'red';
+            context.fillStyle = obj.color;
+            for (var i = 0; i < points.length; i++){
+                for (var j = i+1; j < points.length; j++){
+                    for (var k = j+1; k < points.length; k++){
+                        context.beginPath();
+                        context.moveTo(points[i].x, points[i].y);
+                        context.lineTo(points[j].x, points[j].y);
+                        context.lineTo(points[k].x, points[k].y);
+                        context.closePath();
+                        context.fill();
+                        context.stroke();
+                    }
                 }
             }
         }
-
-        context.strokeStyle = 'red';
-        context.stroke();
     }
 
     return core;

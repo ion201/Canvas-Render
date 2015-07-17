@@ -33,7 +33,7 @@ define(['core', 'utils', 'vector3d'], function(core, utils, vector3d){
 
     CR.setFov = function(fov){
         // 60 < fov < 120;
-        viewport.fov = utils.clamp(fov, 60, 120);
+        viewport.fov = utils.clamp(fov, Math.PI / 3, Math.PI * 2 / 3);
     }
 
     CR.moveView2d = function(d, angle){
@@ -62,7 +62,10 @@ define(['core', 'utils', 'vector3d'], function(core, utils, vector3d){
 
     var inframe = false;
     CR.coreloop = function(){
-        if (CR.inframe) return;
+        if (CR.inframe){
+            console.log('Frame skipped :(');
+             return;
+        }
         var inframe = true;
 
         context.fillStyle = bgColor;
