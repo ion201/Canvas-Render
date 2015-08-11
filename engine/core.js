@@ -21,17 +21,21 @@ define(['vector3d', 'utils'], function(vector3d, utils){
                 relPos.subtract(vp.pos);
                 relPos.rotate3d(-vp.rot_horz, -vp.rot_vert, 0);
 
-                var los = vector3d.create(0, 1, 0);
-
                 var fracSpanX = relPos.x;
                 var fracSpanZ = relPos.z;
-                var fullSpanX = -1 * Math.tan(vp.fov / 2) * relPos.y;
-                var fullSpanZ = -1 * Math.tan(vp.fov / 3) * relPos.y;
+                var sign = (relPos.y > 0 ? -1 : 1)
+                var fullSpanX = sign * Math.tan(vp.fov / 2) * relPos.y;
+                var fullSpanZ = sign * Math.tan(vp.fov / 3) * relPos.y;
+
+                if (relPos.y <= 0){
+                    fracSpanX = fullSpanX - fracSpanX;
+                    fracSpanZ = fullSpanZ - fracSpanZ;
+                }
 
                 var canvasPosX = (fracSpanX / fullSpanX + 1) * (canvas.width / 2);
                 var canvasPosY = (fracSpanZ / fullSpanZ + 1) * (canvas.height / 2);
 
-                points.push({'x': canvasPosX, 'y': canvasPosY});
+                points.push({'x': canvasPosX, 'y': canvasPosY, 'behindView': relPos.y <= 0});
             }
 
             context.strokeStyle = 'red';
@@ -39,6 +43,11 @@ define(['vector3d', 'utils'], function(vector3d, utils){
             for (var i = 0; i < points.length; i++){
                 for (var j = i+1; j < points.length; j++){
                     for (var k = j+1; k < points.length; k++){
+                        if (points[i].behindView &&
+                                points[j].behindView &&
+                                points[k].behindView){
+                            continue;
+                        }
                         context.beginPath();
                         context.moveTo(points[i].x, points[i].y);
                         context.lineTo(points[j].x, points[j].y);
